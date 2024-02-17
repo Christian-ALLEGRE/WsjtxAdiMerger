@@ -1,4 +1,4 @@
-# WsjtxAdiMerger by F4LAA V1.1 (2024/02/17 16:00)
+# WsjtxAdiMerger by F4LAA V1.1a (2024/02/17 16:00)
 A Program to merge two WSJT-X instances ADI log files<br/>
 <br/>
 If you use two instances of WSJT-X program running for two different Rigs<br/>
@@ -33,7 +33,7 @@ Enjoy it.<br/>
 <b>Version History :</b><br/>
 V1.0  (2024/02/16 18:00): First release.<br/>
 V1.1  (2024/02/17 10:00): Add the language management (English and French)<br/>
-V1.1a (2024/02/17 16:00): Fix a bug detected by F8CND (issue #1) where the program fail to start (coz Lang registry variable was not initialized on a new computer)<br/>
+V1.1a (2024/02/17 16:00): Fix a bug detected by F8CND (issue #1) where the program fail to start after a fresh install.<br/>
 <hr/>
 
 
