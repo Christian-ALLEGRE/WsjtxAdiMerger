@@ -45,12 +45,12 @@ V1.1a (2024/02/17 16:00): <br/>
 </ul>
 V1.1b (2024/02/17 23:13): <br/>
 <ul>
-  <li>Fix a bug detected by F8CND (issue #2) where the program fail to create wsjtx_144MHz.adi if the selected file was not a wsjtx_log.adi file.</li>
+  <li>Fix a bug detected by F8CND (issue #2) where the program fail to create the wsjtx_144MHz.adi file.</li>
   <li>Check that te selected files names contains the "wsjtx_log.adi" string.</li>
   <li>Do nothing on files if :<br/>
     <ul>
-      <li>No record was found in the 1st wsjtx_log.adi file</li>
-      <li>No corect Header was found in the 1st wsjtx_log.adi file</li>
+      <li>No record was found in the 1st wsjtx_log.adi file.</li>
+      <li>No correct Header was found in the 1st wsjtx_log.adi file.</li>
     </ul>
   </li>
   <li>Backup the selected files (under .bak_yyyyMMddhhmmss) to prevent file lost in case of program failure.</li>
