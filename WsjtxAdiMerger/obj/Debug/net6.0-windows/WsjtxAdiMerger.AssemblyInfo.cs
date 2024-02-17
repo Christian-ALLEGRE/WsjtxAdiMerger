@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WsjtxAdiMerger")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+973ce5f40df19dd09d4e880939a459ffc3a10dbd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c34ed2f9285580bf48c97d63430da2c20c771b08")]
 [assembly: System.Reflection.AssemblyProductAttribute("WsjtxAdiMerger")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WsjtxAdiMerger")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -14,13 +14,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1a (17/02/2024 16:00)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1b (17/02/2024 23:13)";
         protected ACRegistry reg;
+        string STR_FileFilter;
+        string STR_NoRecordFound;
+        string STR_NoHeaderFound;
+        string STR_MsgCompleted;
+        string STR_MSG1;
+        string STR_MSG2;
+        string STR_MSG3;
+        string STR_MSG4;
+        string STR_MSG5;
+
         void setLang(int lang)
         {
             switch (toolStripComboBoxLang.SelectedIndex)
@@ -31,6 +42,15 @@ namespace WsjtxAdiMerger
                     BFusion.Text = "Fusionner puis remplacer les .ADI";
                     CB144.Text = "Générer wsjtx_144MHz.adi";
                     CB432.Text = "Générer wsjtx_432MHz.adi";
+                    STR_FileFilter = "Fichiers ADI (*.adi)|*.adi";
+                    STR_NoRecordFound = "ERREUR: Aucun enregistrement trouvé dans le fichier wsjtx_log.adi du 1er WSJT-X";
+                    STR_NoHeaderFound = "ERREUR: L'entête attendue n'a pas été trouvée dans le fichier wsjtx_log.adi du 1er WSJT-X";
+                    STR_MsgCompleted = "$ enregistrements ajoutés. Fichiers fusionnés et remplacés.";
+                    STR_MSG1 = "Il faut choisir deux fichiers wsjtx_log.adi dans deux dossiers différents";
+                    STR_MSG2 = "Choisissez le fichier wsjtx_log.adi du 2ème Wsjt-x";
+                    STR_MSG3 = "Il faut choisir le fichier wsjtx_log.adi du 2ème Wsjt-x";
+                    STR_MSG4 = "Choisissez le fichier wsjtx_log.adi du 1er Wsjt-x";
+                    STR_MSG5 = "Il faut choisir le fichier wsjtx_log.adi du 1er Wsjt-x";
                     VERSION = VERSION.Replace("by", "par");
                     break;
 
@@ -40,6 +60,15 @@ namespace WsjtxAdiMerger
                     BFusion.Text = "Merge then Replace .ADI files";
                     CB144.Text = "Generate wsjtx_144MHz.adi file";
                     CB432.Text = "Generate wsjtx_432MHz.adi file";
+                    STR_FileFilter = "ADI File (*.adi)|*.adi";
+                    STR_NoRecordFound = "ERROR: No record found in the wsjtx_log.adi file of the 1st WSJT-X";
+                    STR_NoHeaderFound = "ERROR: The expected header has not been found in the wsjtx_log.adi file of the 1st WSJT-X";
+                    STR_MsgCompleted = "$ records added. Files merged and replaced.";
+                    STR_MSG1 = "You must select two wsjtx_log.adi files in two differents directories";
+                    STR_MSG2 = "Select the wsjtx_log.adi file for the 2nd Wsjt-x";
+                    STR_MSG3 = "You must select the wsjtx_log.adi file of the 2nd Wsjt-x";
+                    STR_MSG4 = "Select the wsjtx_log.adi file for the 1st Wsjt-x";
+                    STR_MSG5 = "You must select the wsjtx_log.adi file of the 1st Wsjt-x";
                     VERSION = VERSION.Replace("par", "by");
                     break;
             }
@@ -55,7 +84,7 @@ namespace WsjtxAdiMerger
             reg = new ACRegistry(@"SOFTWARE\F4LAA\WsjtxAdiMerger", true);
 
             string sReg = reg.GetKey("Top");
-            int lang = 0;
+            int lang = 0; // Default to Français
             if ((sReg != null) && (sReg != ""))
             {
                 StartPosition = FormStartPosition.Manual;
@@ -78,7 +107,7 @@ namespace WsjtxAdiMerger
         {
             var fileDialog = new OpenFileDialog();
             fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"..\local";
-            fileDialog.Filter = "Fichiers ADI (*.adi)|*.adi";
+            fileDialog.Filter = STR_FileFilter; 
             if (fileDialog.ShowDialog() == DialogResult.OK)
                 labFile1.Text = fileDialog.FileName;
         }
@@ -87,13 +116,14 @@ namespace WsjtxAdiMerger
         {
             var fileDialog = new OpenFileDialog();
             fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"..\local";
-            fileDialog.Filter = "Fichiers ADI (*.adi)|*.adi";
+            fileDialog.Filter = STR_FileFilter;
             if (fileDialog.ShowDialog() == DialogResult.OK)
                 labFile2.Text = fileDialog.FileName;
         }
 
-        private void _loadFile(string filename, SortedList dict)
+        private int _loadFile(string filename, SortedList dict)
         {
+            int result = 0;
             foreach (string line in File.ReadLines(filename))
             {
                 string toFind = "<gridsquare:";
@@ -115,19 +145,28 @@ namespace WsjtxAdiMerger
                     key += "|" + callSign;
 
                     if (!dict.ContainsKey(key)) // Ignore duplicate key (coz 2nd file may already contains lines from 1st file)
+                    {
+                        result++;
                         dict.Add(key, line);
+                    }
                 }
             }
+            return result;
         }
 
-        private void FusionADI()
+        private int FusionADI()
         {
             // Chargement des fichiers en mémoire
             SortedList dict = new SortedList();
 
             // Stream d'ecriture dans le fichier de trace
-            _loadFile(labFile1.Text, dict);
-            _loadFile(labFile2.Text, dict);
+            int nbRecFile1 = _loadFile(labFile1.Text, dict);
+            if (nbRecFile1 == 0)
+            {
+                MessageBox.Show(STR_NoRecordFound);
+                return -1;
+            }
+            int result = _loadFile(labFile2.Text, dict);
 
             // Recopie Header file
             string[] sHeader = new string[6];
@@ -138,16 +177,42 @@ namespace WsjtxAdiMerger
                 if (cpt == 6)
                     break; // End of Header file
             }
+            if (cpt != 6)
+            {
+                MessageBox.Show(STR_NoHeaderFound);
+                return -1;
+            }
+
+            // Sauvegarde des fichiers 
+            DateTime now = DateTime.Now;
+            string mm = now.Month.ToString();
+            if (now.Month < 10)
+                mm = "0" + mm;
+            string dd = now.Day.ToString();
+            if (now.Day < 10)
+                dd = "0" + dd;
+            string hh = now.Hour.ToString();
+            if (now.Hour < 10)
+                hh = "0" + hh;
+            string mi = now.Minute.ToString();
+            if (now.Minute < 10)
+                mi = "0" + mi;
+            string ss = now.Second.ToString();
+            if (now.Second < 10)
+                ss = "0" + ss;
+            string ext = ".bak_" + now.Year + mm + dd + hh + mi + ss;
+            File.Copy(labFile1.Text, labFile1.Text + ext, true);
+            File.Copy(labFile2.Text, labFile2.Text + ext, true);
 
             // Ecriture
             FileStream fileOut1 = new FileStream(labFile1.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
             FileStream fileOut2 = new FileStream(labFile2.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
             FileStream fileOut144 = null;
             if (CB144.Checked)
-                fileOut144 = new FileStream(labFile1.Text.Replace("_log", "_144MHz.adi"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
+                fileOut144 = new FileStream(labFile1.Text.Replace("_log", "_144MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
             FileStream fileOut432 = null;
             if (CB432.Checked)
-                fileOut432 = new FileStream(labFile1.Text.Replace("_log", "_432MHz.adi"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
+                fileOut432 = new FileStream(labFile1.Text.Replace("_log", "_432MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
 
             for (int i = 0; i < 6; i++)
             {
@@ -182,18 +247,28 @@ namespace WsjtxAdiMerger
             if (CB432.Checked)
                 fileOut432.Close();
 
-            MessageBox.Show("Fichiers fusionnés et remplacé.");
+            return result;
         }
 
         private string saisieOK()
         {
             string result = "";
             if (labFile1.Text == labFile2.Text)
-                result = "Il faut choisir deux fichiers .adi dans deux dossiers différents";
-            if (labFile2.Text.IndexOf("Select") >= 0)
-                result = "Choisissez le fichier .adi du 2ème Wsjt-x";
-            if (labFile1.Text.IndexOf("Select") >= 0)
-                result = "Choisissez le fichier .adi du 1er Wsjt-x";
+                result = STR_MSG1; // "Il faut choisir deux fichiers wsjtx_log.adi dans deux dossiers différents";
+            if (result.Length == 0)
+            {
+                if (labFile2.Text.IndexOf("Select") >= 0)
+                    result = STR_MSG2; // "Choisissez le fichier wsjtx_log.adi du 2ème Wsjt-x";
+                else if (labFile2.Text.IndexOf("wsjtx_log.adi") < 0)
+                    result = STR_MSG3; // "Il faut choisir le fichier wsjtx_log.adi du 2ème Wsjt-x";
+            }
+            if (result.Length == 0)
+            {
+                if (labFile1.Text.IndexOf("Select") >= 0)
+                    result = STR_MSG4; // "Choisissez le fichier wsjtx_log.adi du 1er Wsjt-x";
+                else if (labFile1.Text.IndexOf("wsjtx_log.adi") < 0)
+                    result = STR_MSG5; // "Il faut choisir le fichier wsjtx_log.adi du 1er Wsjt-x";
+            }
             return result;
         }
         private void BFusion_Click(object sender, EventArgs e)
@@ -202,7 +277,11 @@ namespace WsjtxAdiMerger
             if (message.Length > 0)
                 MessageBox.Show(message);
             else
-                FusionADI();
+            {
+                int nbRecAdded = FusionADI();
+                if (nbRecAdded >= 0)
+                    MessageBox.Show(STR_MsgCompleted.Replace("$", nbRecAdded.ToString()));
+            }
         }
 
         private void toolStripButtonAbout_Click(object sender, EventArgs e)
@@ -225,6 +304,5 @@ namespace WsjtxAdiMerger
             reg.SetKey("CB432", CB432.Checked ? "1" : "0");
             reg.SetKey("Lang", toolStripComboBoxLang.SelectedIndex.ToString());
         }
-
     }
 }
