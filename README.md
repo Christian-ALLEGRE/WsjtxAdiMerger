@@ -14,10 +14,10 @@ The program read both files in memory, merge them, then rewrite them in each dir
 Now, each WSJT-X instance has the same QSO list as the other, so you can benefit again from the color code provided by WSJT-X to show already done locator vs not yet done locator.<br/>
 <br/>
 You can optionnaly check :<br/>
-<li>
-  <ul>"Generate wsjtx_144MHz.adi file" to extract all QSO of the 2m band in a dedicated .adi file.</ul>
-  <ul>"Generate wsjtx_432MHz.adi file" to extract all QSO of the 70cm band in a dedicated .adi file.</ul>
-</li>
+<ul>
+  <li>"Generate wsjtx_144MHz.adi file" to extract all QSO of the 2m band in a dedicated .adi file.</li>
+  <li>"Generate wsjtx_432MHz.adi file" to extract all QSO of the 70cm band in a dedicated .adi file.</li>
+</ul>
 Those dedicated files are generated in the directory of the first WSJT-X instance.<br/>
 <br/>
 The program memorizes in the Windows Registries the parameters for Instance 1 and 2 of WSJT-X, so if you restart the program later, you only have to click on the "Merge then Replace .ADI files" button to get the files synchronized.<br/>
