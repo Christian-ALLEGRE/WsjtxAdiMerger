@@ -1,12 +1,12 @@
 # WsjtxAdiMerger by F4LAA V1.1 (2024/02/17)
 A Program to merge two WSJT-X instances ADI log files<br/>
 <br/>
-If you have two instances of WSJT-X program running for two different Rig<br/>
+If you use two instances of WSJT-X program running for two different Rigs<br/>
 each instances has it's own <b>wsjtx_log.adi</b> file which contain the list of QSOs made with this instance.<br/>
 <br/>
-if you want an instance to know about the QSO made with the other instance, you have to compensate those wsjtx_log.adi files.<br/>
+if you want an instance to know about the QSOs made with the other instance, you have to compensate those wsjtx_log.adi files.<br/>
 <br/>
-This program do it for you automatically.<br/>
+<b>This program do it for you automatically.</b><br/>
 <br/>
 You select the two directories where wsjtx_log.adi files resides, and click on "Merge then Replace .ADI files" button.<br/>
 The program read both files in memory, merge them, then rewrite them in each directory so that the two files becomes the same.<br/>
