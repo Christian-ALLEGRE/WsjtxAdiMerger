@@ -32,19 +32,19 @@ Enjoy it.<br/>
 <hr/>
 <b>Version History :</b><br/>
 V1.0  (2024/02/16 18:00): <br/>
-  First release.<br/>
+  - First release.<br/>
 V1.1  (2024/02/17 10:00): <BR/>
-  Add the language management (English and French)<br/>
+  - Add the language management (English and French)<br/>
 V1.1a (2024/02/17 16:00): <br/>
-  Fix a bug detected by F8CND (issue #1) where the program fail to start after a fresh install.<br/>
+  - Fix a bug detected by F8CND (issue #1) where the program fail to start after a fresh install.<br/>
 V1.1b (2024/02/17 23:13): <br/>
-  Fix a bug detected by F8CND (issue #2) where the program fail to create wsjtx_144MHz.adi if the selected file was not a wsjtx_log.adi file.<br/>
-  Check that te selected files names contains the "wsjtx_log.adi" string.<br>
-  Do nothing on files if : <br/>
-    No record was found in the 1st wsjtx_log.adi file<br/>
-    No corect Header was found in the 1st wsjtx_log.adi file<br/>
-  Backup of the selected files (under .bak_yyyyMMddhhmmss) to prevent file lost in case of program failure.<br/>
-  Add translation for all messages.<br/>
+  - Fix a bug detected by F8CND (issue #2) where the program fail to create wsjtx_144MHz.adi if the selected file was not a wsjtx_log.adi file.<br/>
+  - Check that te selected files names contains the "wsjtx_log.adi" string.<br>
+  - Do nothing on files if : <br/>
+    - No record was found in the 1st wsjtx_log.adi file<br/>
+    - No corect Header was found in the 1st wsjtx_log.adi file<br/>
+  - Backup of the selected files (under .bak_yyyyMMddhhmmss) to prevent file lost in case of program failure.<br/>
+  - Add translation for all messages.<br/>
 <hr/>
 
 
