@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WsjtxAdiMerger));
             labFile1 = new Label();
             BWsjtx1 = new Button();
             BWsjtx2 = new Button();
@@ -35,12 +36,17 @@
             CB144 = new CheckBox();
             CB432 = new CheckBox();
             BFusion = new Button();
+            toolStrip1 = new ToolStrip();
+            toolStripLabel1 = new ToolStripLabel();
+            toolStripComboBoxLang = new ToolStripComboBox();
+            toolStripButtonAbout = new ToolStripButton();
+            toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // labFile1
             // 
             labFile1.AutoSize = true;
-            labFile1.Location = new Point(89, 14);
+            labFile1.Location = new Point(108, 52);
             labFile1.Name = "labFile1";
             labFile1.Size = new Size(191, 15);
             labFile1.TabIndex = 0;
@@ -48,7 +54,7 @@
             // 
             // BWsjtx1
             // 
-            BWsjtx1.Location = new Point(8, 10);
+            BWsjtx1.Location = new Point(27, 48);
             BWsjtx1.Name = "BWsjtx1";
             BWsjtx1.Size = new Size(75, 23);
             BWsjtx1.TabIndex = 1;
@@ -58,7 +64,7 @@
             // 
             // BWsjtx2
             // 
-            BWsjtx2.Location = new Point(8, 39);
+            BWsjtx2.Location = new Point(27, 77);
             BWsjtx2.Name = "BWsjtx2";
             BWsjtx2.Size = new Size(75, 23);
             BWsjtx2.TabIndex = 3;
@@ -69,7 +75,7 @@
             // labFile2
             // 
             labFile2.AutoSize = true;
-            labFile2.Location = new Point(89, 43);
+            labFile2.Location = new Point(108, 81);
             labFile2.Name = "labFile2";
             labFile2.Size = new Size(191, 15);
             labFile2.TabIndex = 2;
@@ -78,7 +84,7 @@
             // CB144
             // 
             CB144.AutoSize = true;
-            CB144.Location = new Point(14, 73);
+            CB144.Location = new Point(33, 111);
             CB144.Name = "CB144";
             CB144.Size = new Size(164, 19);
             CB144.TabIndex = 4;
@@ -88,7 +94,7 @@
             // CB432
             // 
             CB432.AutoSize = true;
-            CB432.Location = new Point(205, 73);
+            CB432.Location = new Point(240, 111);
             CB432.Name = "CB432";
             CB432.Size = new Size(164, 19);
             CB432.TabIndex = 5;
@@ -97,19 +103,52 @@
             // 
             // BFusion
             // 
-            BFusion.Location = new Point(99, 107);
+            BFusion.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            BFusion.Location = new Point(108, 147);
             BFusion.Name = "BFusion";
-            BFusion.Size = new Size(196, 23);
+            BFusion.Size = new Size(252, 32);
             BFusion.TabIndex = 6;
             BFusion.Text = "Fusionner puis remplacer les .ADI";
             BFusion.UseVisualStyleBackColor = true;
             BFusion.Click += BFusion_Click;
             // 
+            // toolStrip1
+            // 
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, toolStripComboBoxLang, toolStripButtonAbout });
+            toolStrip1.Location = new Point(0, 0);
+            toolStrip1.Name = "toolStrip1";
+            toolStrip1.Size = new Size(459, 38);
+            toolStrip1.TabIndex = 10;
+            toolStrip1.Text = "toolStrip1";
+            // 
+            // toolStripLabel1
+            // 
+            toolStripLabel1.Name = "toolStripLabel1";
+            toolStripLabel1.Size = new Size(46, 35);
+            toolStripLabel1.Text = "Langue";
+            // 
+            // toolStripComboBoxLang
+            // 
+            toolStripComboBoxLang.Name = "toolStripComboBoxLang";
+            toolStripComboBoxLang.Size = new Size(80, 38);
+            toolStripComboBoxLang.SelectedIndexChanged += toolStripComboBoxLang_SelectedIndexChanged;
+            // 
+            // toolStripButtonAbout
+            // 
+            toolStripButtonAbout.Image = (Image)resources.GetObject("toolStripButtonAbout.Image");
+            toolStripButtonAbout.ImageTransparentColor = Color.Magenta;
+            toolStripButtonAbout.Name = "toolStripButtonAbout";
+            toolStripButtonAbout.Size = new Size(59, 35);
+            toolStripButtonAbout.Text = "A propos";
+            toolStripButtonAbout.TextImageRelation = TextImageRelation.ImageAboveText;
+            toolStripButtonAbout.Click += toolStripButtonAbout_Click;
+            // 
             // WsjtxAdiMerger
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(514, 153);
+            ClientSize = new Size(459, 200);
+            Controls.Add(toolStrip1);
             Controls.Add(BFusion);
             Controls.Add(CB432);
             Controls.Add(CB144);
@@ -120,6 +159,8 @@
             Name = "WsjtxAdiMerger";
             Text = "WsjtxAdiMerger by F4LAA (V1.0 2024/02/16)";
             FormClosing += WsjtxAdiMerger_FormClosing;
+            toolStrip1.ResumeLayout(false);
+            toolStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -133,5 +174,9 @@
         private CheckBox CB144;
         private CheckBox CB432;
         private Button BFusion;
+        private ToolStrip toolStrip1;
+        private ToolStripLabel toolStripLabel1;
+        private ToolStripComboBox toolStripComboBoxLang;
+        private ToolStripButton toolStripButtonAbout;
     }
 }

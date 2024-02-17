@@ -5,6 +5,9 @@
  * 
  * V1.0 (16/02/2024)
  *   - Création du programme
+ *
+ * V1.1 (17/02/2024)
+ *   - Ajout Langues FR/US + About dlg
  * 
  * ***************************************************************/
 using System.Collections;
@@ -16,12 +19,39 @@ namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger by F4LAA V1.0 (16/02/2024)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1 (17/02/2024)";
         protected ACRegistry reg;
+        void setLang(int lang)
+        {
+            switch (toolStripComboBoxLang.SelectedIndex)
+            {
+                case 0:
+                    toolStripLabel1.Text = "Langue";
+                    toolStripButtonAbout.Text = "A propos";
+                    BFusion.Text = "Fusionner puis remplacer les .ADI";
+                    CB144.Text = "Générer wsjtx_144MHz.adi";
+                    CB432.Text = "Générer wsjtx_432MHz.adi";
+                    VERSION = VERSION.Replace("by", "par");
+                    break;
+
+                case 1:
+                    toolStripLabel1.Text = "Language";
+                    toolStripButtonAbout.Text = "About";
+                    BFusion.Text = "Merge then Replace .ADI files";
+                    CB144.Text = "Generate wsjtx_144MHz.adi file";
+                    CB432.Text = "Generate wsjtx_432MHz.adi file";
+                    VERSION = VERSION.Replace("par", "by");
+                    break;
+            }
+            Text = VERSION;
+        }
+        private void toolStripComboBoxLang_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            setLang(toolStripComboBoxLang.SelectedIndex);
+        }
         public WsjtxAdiMerger()
         {
             InitializeComponent();
-            Text = VERSION;
             reg = new ACRegistry("WsjtxAdiMerger", true);
 
             string sReg = reg.GetKey("Top");
@@ -36,6 +66,10 @@ namespace WsjtxAdiMerger
                 CB144.Checked = (reg.GetKey("CB144") == "1");
                 CB432.Checked = (reg.GetKey("CB432") == "1");
             }
+
+            toolStripComboBoxLang.Items.Add("Français");
+            toolStripComboBoxLang.Items.Add("English");
+            toolStripComboBoxLang.SelectedIndex = int.Parse(reg.GetKey("Lang"));
         }
 
         private void BWsjtx1_Click(object sender, EventArgs e)
@@ -78,7 +112,7 @@ namespace WsjtxAdiMerger
 
                     key += "|" + callSign;
 
-                    if (! dict.ContainsKey(key)) // Ignore duplicate key (coz 2nd file may already contains lines from 1st file)
+                    if (!dict.ContainsKey(key)) // Ignore duplicate key (coz 2nd file may already contains lines from 1st file)
                         dict.Add(key, line);
                 }
             }
@@ -169,6 +203,16 @@ namespace WsjtxAdiMerger
                 FusionADI();
         }
 
+        private void toolStripButtonAbout_Click(object sender, EventArgs e)
+        {
+            About dlg = new About(VERSION, toolStripComboBoxLang.SelectedIndex)
+            {
+                StartPosition = FormStartPosition.Manual,
+                Left = this.Left + 40,
+                Top = this.Top + 30
+            };
+            dlg.ShowDialog();
+        }
         private void WsjtxAdiMerger_FormClosing(object sender, FormClosingEventArgs e)
         {
             reg.SetKey("Top", "" + Top);
@@ -177,6 +221,8 @@ namespace WsjtxAdiMerger
             reg.SetKey("File2", labFile2.Text);
             reg.SetKey("CB144", CB144.Checked ? "1" : "0");
             reg.SetKey("CB432", CB432.Checked ? "1" : "0");
+            reg.SetKey("Lang", toolStripComboBoxLang.SelectedIndex.ToString());
         }
+
     }
 }
