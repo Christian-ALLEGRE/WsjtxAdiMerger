@@ -1,4 +1,4 @@
-# WsjtxAdiMerger by F4LAA V1.1 (2024/02/17)
+# WsjtxAdiMerger by F4LAA V1.1 (2024/02/17 16:00)
 A Program to merge two WSJT-X instances ADI log files<br/>
 <br/>
 If you use two instances of WSJT-X program running for two different Rigs<br/>
@@ -27,5 +27,13 @@ So, you may need to install the ".Net6 desktop runtime" to be able to run it on 
 <br/>
 You can find the .exe, .dll, and requested .json files in the WsjtxAdiMerger\bin\Debug\net6.0-windows directory.<br/>
 <br/>
-Enjoy it.
+Enjoy it.<br/>
+<br/>
+<hr/>
+<b>Version History :</b><br/>
+V1.0  (2024/02/16 18:00): First release.<br/>
+V1.1  (2024/02/17 10:00): Add the language management (English and French)<br/>
+V1.1a (2024/02/17 16:00): Fix a bug detected by F8CND (issue #1) where the program fail to start (coz Lang registry variable was not initialized on a new computer)<br/>
+<hr/>
+
 

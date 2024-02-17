@@ -19,7 +19,7 @@ namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1 (17/02/2024)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1a (17/02/2024 16:00)";
         protected ACRegistry reg;
         void setLang(int lang)
         {
@@ -52,9 +52,10 @@ namespace WsjtxAdiMerger
         public WsjtxAdiMerger()
         {
             InitializeComponent();
-            reg = new ACRegistry("WsjtxAdiMerger", true);
+            reg = new ACRegistry(@"SOFTWARE\F4LAA\WsjtxAdiMerger", true);
 
             string sReg = reg.GetKey("Top");
+            int lang = 0;
             if ((sReg != null) && (sReg != ""))
             {
                 StartPosition = FormStartPosition.Manual;
@@ -65,11 +66,12 @@ namespace WsjtxAdiMerger
                 labFile2.Text = reg.GetKey("File2");
                 CB144.Checked = (reg.GetKey("CB144") == "1");
                 CB432.Checked = (reg.GetKey("CB432") == "1");
+                lang = int.Parse(reg.GetKey("Lang"));
             }
 
             toolStripComboBoxLang.Items.Add("Français");
             toolStripComboBoxLang.Items.Add("English");
-            toolStripComboBoxLang.SelectedIndex = int.Parse(reg.GetKey("Lang"));
+            toolStripComboBoxLang.SelectedIndex = lang;
         }
 
         private void BWsjtx1_Click(object sender, EventArgs e)
@@ -208,7 +210,7 @@ namespace WsjtxAdiMerger
             About dlg = new About(VERSION, toolStripComboBoxLang.SelectedIndex)
             {
                 StartPosition = FormStartPosition.Manual,
-                Left = this.Left + 40,
+                Left = this.Left + 20,
                 Top = this.Top + 30
             };
             dlg.ShowDialog();

@@ -65,7 +65,7 @@
             // 
             // BClose
             // 
-            BClose.Location = new Point(144, 125);
+            BClose.Location = new Point(169, 125);
             BClose.Name = "BClose";
             BClose.Size = new Size(75, 23);
             BClose.TabIndex = 4;
@@ -88,7 +88,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(387, 160);
+            ClientSize = new Size(423, 160);
             Controls.Add(linkLabel1);
             Controls.Add(BClose);
             Controls.Add(label3);
