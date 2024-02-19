@@ -17,27 +17,25 @@
  *   - Check that input filenames contains wsjtx_log.adi string
  *   - Backup files before overwriting them
  * 
- * V1.1c (19/02/2024 11:10)
+ * V1.1c (19/02/2024 20:00)
  *   - More explicit final message
  * 
  * ***************************************************************/
 using System.Collections;
-using System.Collections.Generic;
 using System.Text;
-using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1c (19/02/2024 11:10)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1c (19/02/2024 20:00)";
         protected ACRegistry reg;
         string STR_FileFilter;
         string STR_NoRecordFound;
         string STR_NoHeaderFound;
         string STR_Result;
         string STR_MsgCompleted;
+        string STR_MsgFileMerged;
         string STR_File144Created;
         string STR_File432Created;
         string STR_MSG1;
@@ -60,7 +58,8 @@ namespace WsjtxAdiMerger
                     STR_NoRecordFound = "ERREUR: Aucun enregistrement trouvé dans le fichier wsjtx_log.adi du 1er WSJT-X";
                     STR_NoHeaderFound = "ERREUR: L'entête attendue n'a pas été trouvée dans le fichier wsjtx_log.adi du 1er WSJT-X";
                     STR_Result = "Résultat de la fusion";
-                    STR_MsgCompleted = "$1 enregistrement ajouté au fichier\r\n%1\r\n\r\n$2 enregistrement ajouté au fichier\r\n%2\r\n\r\nLes deux fichiers ont été fusionnés et remis en place.";
+                    STR_MsgCompleted = "$1 enregistrement ajouté au fichier\r\n%1\r\n\r\n$2 enregistrement ajouté au fichier\r\n%2\r\n";
+                    STR_MsgFileMerged = "\r\nLes deux fichiers ont été fusionnés et remis en place.";
                     STR_File144Created = "\r\nLe fichier wsjtx_144MHz a été créé.";
                     STR_File432Created = "\r\nLe fichier wsjtx_432MHz a été créé.";
                     STR_MSG1 = "Il faut choisir deux fichiers wsjtx_log.adi dans deux dossiers différents";
@@ -81,7 +80,8 @@ namespace WsjtxAdiMerger
                     STR_NoRecordFound = "ERROR: No record found in the wsjtx_log.adi file of the 1st WSJT-X";
                     STR_NoHeaderFound = "ERROR: The expected header has not been found in the wsjtx_log.adi file of the 1st WSJT-X";
                     STR_Result = "Merge result";
-                    STR_MsgCompleted = "$1 record added to file\r\n%1\r\n\r\n$2 record added to file\r\n%2\r\n\r\nThe two files have been merged and replaced.";
+                    STR_MsgCompleted = "$1 record added to file\r\n%1\r\n\r\n$2 record added to file\r\n%2\r\n";
+                    STR_MsgFileMerged = "\r\nThe two files have been merged and replaced.";
                     STR_File144Created = "\r\nThe file wsjtx_144MHz has been created.";
                     STR_File432Created = "\r\nThe file wsjtx_432MHz has been created.";
                     STR_MSG1 = "You must select two wsjtx_log.adi files in two differents directories";
@@ -230,6 +230,10 @@ namespace WsjtxAdiMerger
             }
             result = result.Replace("$2", nbRecAdded2.ToString());
 
+            bool filesChanged = ((nbRecAdded1 + nbRecAdded2) > 0);
+            if (filesChanged)
+                result += STR_MsgFileMerged;
+
             FileStream fileOut1 = null;
             FileStream fileOut2 = null;
             FileStream fileOut144 = null;
@@ -258,7 +262,6 @@ namespace WsjtxAdiMerger
                 result += STR_File432Created;
             }
 
-            bool filesChanged = ( (nbRecAdded1 + nbRecAdded2) > 0);
             if (filesChanged)
             {
                 // Sauvegarde des fichiers 

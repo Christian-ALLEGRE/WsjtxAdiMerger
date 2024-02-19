@@ -1,4 +1,4 @@
-# WsjtxAdiMerger by F4LAA V1.1c (2024/02/19 11:10)
+# WsjtxAdiMerger by F4LAA V1.1c (2024/02/19 20:00)
 A Program to merge two WSJT-X instances ADI log files<br/>
 <br/>
 If you use two instances of WSJT-X program running for two different Rigs<br/>
@@ -56,7 +56,7 @@ V1.1b (2024/02/17 23:13): <br/>
   <li>Add backup of the selected files (under .bak_yyyyMMddhhmmss) to prevent file lost in case of program failure.</li>
   <li>Add translation for all messages.</li>
 </ul>
-V1.1c (2024/02/19 11:10): <br/>
+V1.1c (2024/02/19 20:00): <br/>
 <ul>
   <li>Add a more explicit final message that tells how many records where added in each files.</li>
   <li>Do not backup and rewrite files if no record were added.</li>
