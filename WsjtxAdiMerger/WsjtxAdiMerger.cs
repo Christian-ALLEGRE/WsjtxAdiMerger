@@ -9,6 +9,17 @@
  * V1.1 (17/02/2024)
  *   - Ajout Langues FR/US + About dlg
  * 
+ * V1.1a (17/02/2024)
+ *   - Fix issue #1 : Fail to start after fresh install coz Lang used when not initialized
+ * 
+ * V1.1b (17/02/2024)
+ *   - Fix issue2 : Fail to create wsjtx_144MHz if input filename do not contain _log string
+ *   - Check that input filenames contains wsjtx_log.adi string
+ *   - Backup files before overwriting them
+ * 
+ * V1.1c (19/02/2024 11:10)
+ *   - More explicit final message
+ * 
  * ***************************************************************/
 using System.Collections;
 using System.Collections.Generic;
@@ -20,12 +31,15 @@ namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1b (17/02/2024 23:13)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1c (19/02/2024 11:10)";
         protected ACRegistry reg;
         string STR_FileFilter;
         string STR_NoRecordFound;
         string STR_NoHeaderFound;
+        string STR_Result;
         string STR_MsgCompleted;
+        string STR_File144Created;
+        string STR_File432Created;
         string STR_MSG1;
         string STR_MSG2;
         string STR_MSG3;
@@ -45,7 +59,10 @@ namespace WsjtxAdiMerger
                     STR_FileFilter = "Fichiers ADI (*.adi)|*.adi";
                     STR_NoRecordFound = "ERREUR: Aucun enregistrement trouvé dans le fichier wsjtx_log.adi du 1er WSJT-X";
                     STR_NoHeaderFound = "ERREUR: L'entête attendue n'a pas été trouvée dans le fichier wsjtx_log.adi du 1er WSJT-X";
-                    STR_MsgCompleted = "$ enregistrements ajoutés. Fichiers fusionnés et remplacés.";
+                    STR_Result = "Résultat de la fusion";
+                    STR_MsgCompleted = "$1 enregistrement ajouté au fichier\r\n%1\r\n\r\n$2 enregistrement ajouté au fichier\r\n%2\r\n\r\nLes deux fichiers ont été fusionnés et remis en place.";
+                    STR_File144Created = "\r\nLe fichier wsjtx_144MHz a été créé.";
+                    STR_File432Created = "\r\nLe fichier wsjtx_432MHz a été créé.";
                     STR_MSG1 = "Il faut choisir deux fichiers wsjtx_log.adi dans deux dossiers différents";
                     STR_MSG2 = "Choisissez le fichier wsjtx_log.adi du 2ème Wsjt-x";
                     STR_MSG3 = "Il faut choisir le fichier wsjtx_log.adi du 2ème Wsjt-x";
@@ -63,7 +80,10 @@ namespace WsjtxAdiMerger
                     STR_FileFilter = "ADI File (*.adi)|*.adi";
                     STR_NoRecordFound = "ERROR: No record found in the wsjtx_log.adi file of the 1st WSJT-X";
                     STR_NoHeaderFound = "ERROR: The expected header has not been found in the wsjtx_log.adi file of the 1st WSJT-X";
-                    STR_MsgCompleted = "$ records added. Files merged and replaced.";
+                    STR_Result = "Merge result";
+                    STR_MsgCompleted = "$1 record added to file\r\n%1\r\n\r\n$2 record added to file\r\n%2\r\n\r\nThe two files have been merged and replaced.";
+                    STR_File144Created = "\r\nThe file wsjtx_144MHz has been created.";
+                    STR_File432Created = "\r\nThe file wsjtx_432MHz has been created.";
                     STR_MSG1 = "You must select two wsjtx_log.adi files in two differents directories";
                     STR_MSG2 = "Select the wsjtx_log.adi file for the 2nd Wsjt-x";
                     STR_MSG3 = "You must select the wsjtx_log.adi file of the 2nd Wsjt-x";
@@ -154,19 +174,19 @@ namespace WsjtxAdiMerger
             return result;
         }
 
-        private int FusionADI()
+        private string FusionADI()
         {
+            string result = STR_MsgCompleted
+                           .Replace("%1", labFile1.Text)
+                           .Replace("%2", labFile2.Text);
+
             // Chargement des fichiers en mémoire
             SortedList dict = new SortedList();
 
             // Stream d'ecriture dans le fichier de trace
             int nbRecFile1 = _loadFile(labFile1.Text, dict);
             if (nbRecFile1 == 0)
-            {
-                MessageBox.Show(STR_NoRecordFound);
-                return -1;
-            }
-            int result = _loadFile(labFile2.Text, dict);
+                return STR_NoRecordFound;
 
             // Recopie Header file
             string[] sHeader = new string[6];
@@ -178,75 +198,129 @@ namespace WsjtxAdiMerger
                     break; // End of Header file
             }
             if (cpt != 6)
+                return STR_NoHeaderFound;
+
+            // Count added record for each files
+            int nbRec1 = _loadFile(labFile1.Text, dict);
+            int nbRecAdded1 = _loadFile(labFile2.Text, dict);
+            if (nbRecAdded1 == 0)
             {
-                MessageBox.Show(STR_NoHeaderFound);
-                return -1;
+                result = result.Replace("$1 enregistrement", "Aucun enregistrement");
+                result = result.Replace("$1 record", "No record");
             }
+            else if (nbRecAdded1 > 1)
+            {
+                result = result.Replace("$1 enregistrement ajouté", "$1 enregistrements ajoutés");
+                result = result.Replace("$1 record added", "$1 records added");
+            }
+            result = result.Replace("$1", nbRecAdded1.ToString());
 
-            // Sauvegarde des fichiers 
-            DateTime now = DateTime.Now;
-            string mm = now.Month.ToString();
-            if (now.Month < 10)
-                mm = "0" + mm;
-            string dd = now.Day.ToString();
-            if (now.Day < 10)
-                dd = "0" + dd;
-            string hh = now.Hour.ToString();
-            if (now.Hour < 10)
-                hh = "0" + hh;
-            string mi = now.Minute.ToString();
-            if (now.Minute < 10)
-                mi = "0" + mi;
-            string ss = now.Second.ToString();
-            if (now.Second < 10)
-                ss = "0" + ss;
-            string ext = ".bak_" + now.Year + mm + dd + hh + mi + ss;
-            File.Copy(labFile1.Text, labFile1.Text + ext, true);
-            File.Copy(labFile2.Text, labFile2.Text + ext, true);
+            dict = new SortedList(); // Reset dict
+            int nbRec2 = _loadFile(labFile2.Text, dict);
+            int nbRecAdded2 = _loadFile(labFile1.Text, dict);
+            if (nbRecAdded2 == 0)
+            {
+                result = result.Replace("$2 enregistrement", "Aucun enregistrement");
+                result = result.Replace("$2 record", "No record");
+            }
+            else if (nbRecAdded2 > 1)
+            {
+                result = result.Replace("$2 enregistrement ajouté", "$2 enregistrements ajoutés");
+                result = result.Replace("$2 record added", "$2 records added");
+            }
+            result = result.Replace("$2", nbRecAdded2.ToString());
 
-            // Ecriture
-            FileStream fileOut1 = new FileStream(labFile1.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
-            FileStream fileOut2 = new FileStream(labFile2.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
+            FileStream fileOut1 = null;
+            FileStream fileOut2 = null;
             FileStream fileOut144 = null;
-            if (CB144.Checked)
-                fileOut144 = new FileStream(labFile1.Text.Replace("_log", "_144MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
             FileStream fileOut432 = null;
-            if (CB432.Checked)
-                fileOut432 = new FileStream(labFile1.Text.Replace("_log", "_432MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
-
-            for (int i = 0; i < 6; i++)
-            {
-                byte[] msg = new UTF8Encoding(true).GetBytes(sHeader[i] + "\r\n");
-                fileOut1.Write(msg, 0, msg.Length);
-                fileOut2.Write(msg, 0, msg.Length);
-                if (CB144.Checked)
-                    fileOut144.Write(msg, 0, msg.Length);
-                if (CB432.Checked)
-                    fileOut432.Write(msg, 0, msg.Length);
-            }
-
-            IDictionaryEnumerator dicEnum = dict.GetEnumerator();
-            while (dicEnum.MoveNext())
-            {
-                string line = dicEnum.Value.ToString();
-                byte[] msg = new UTF8Encoding(true).GetBytes(line + "\r\n");
-                fileOut1.Write(msg, 0, msg.Length);
-                fileOut2.Write(msg, 0, msg.Length);
-                if (CB144.Checked)
-                    if (line.IndexOf(">2m ") > 0)
-                        fileOut144.Write(msg, 0, msg.Length);
-                if (CB432.Checked)
-                    if (line.IndexOf(">70cm ") > 0)
-                        fileOut432.Write(msg, 0, msg.Length);
-            }
-
-            fileOut1.Close();
-            fileOut2.Close();
             if (CB144.Checked)
-                fileOut144.Close();
-            if (CB432.Checked)
-                fileOut432.Close();
+            {
+                fileOut144 = new FileStream(labFile1.Text.Replace("_log", "_144MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
+                // Header of added files
+                for (int i = 0; i < 6; i++)
+                {
+                    byte[] msg = new UTF8Encoding(true).GetBytes(sHeader[i] + "\r\n");
+                    fileOut144.Write(msg, 0, msg.Length);
+                }
+                result += STR_File144Created;
+            }
 
+            if (CB432.Checked)
+            {
+                fileOut432 = new FileStream(labFile1.Text.Replace("_log", "_432MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
+                // Header of added files
+                for (int i = 0; i < 6; i++)
+                {
+                    byte[] msg = new UTF8Encoding(true).GetBytes(sHeader[i] + "\r\n");
+                    fileOut432.Write(msg, 0, msg.Length);
+                }
+                result += STR_File432Created;
+            }
+
+            bool filesChanged = ( (nbRecAdded1 + nbRecAdded2) > 0);
+            if (filesChanged)
+            {
+                // Sauvegarde des fichiers 
+                DateTime now = DateTime.Now;
+                string mm = now.Month.ToString();
+                if (now.Month < 10)
+                    mm = "0" + mm;
+                string dd = now.Day.ToString();
+                if (now.Day < 10)
+                    dd = "0" + dd;
+                string hh = now.Hour.ToString();
+                if (now.Hour < 10)
+                    hh = "0" + hh;
+                string mi = now.Minute.ToString();
+                if (now.Minute < 10)
+                    mi = "0" + mi;
+                string ss = now.Second.ToString();
+                if (now.Second < 10)
+                    ss = "0" + ss;
+                string ext = ".bak_" + now.Year + mm + dd + hh + mi + ss;
+                File.Copy(labFile1.Text, labFile1.Text + ext, true);
+                File.Copy(labFile2.Text, labFile2.Text + ext, true);
+
+                // RéEcriture des fichiers
+                fileOut1 = new FileStream(labFile1.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
+                fileOut2 = new FileStream(labFile2.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
+                // Header of files
+                for (int i = 0; i < 6; i++)
+                {
+                    byte[] msg = new UTF8Encoding(true).GetBytes(sHeader[i] + "\r\n");
+                    fileOut1.Write(msg, 0, msg.Length);
+                    fileOut2.Write(msg, 0, msg.Length);
+                }
+            }
+
+            if (filesChanged || CB144.Checked || CB432.Checked)
+            {
+                IDictionaryEnumerator dicEnum = dict.GetEnumerator();
+                while (dicEnum.MoveNext())
+                {
+                    string line = dicEnum.Value.ToString();
+                    byte[] msg = new UTF8Encoding(true).GetBytes(line + "\r\n");
+                    if (filesChanged)
+                    {
+                        fileOut1.Write(msg, 0, msg.Length);
+                        fileOut2.Write(msg, 0, msg.Length);
+                    }
+                    if ( CB144.Checked && (line.IndexOf(">2m ") > 0) )
+                            fileOut144.Write(msg, 0, msg.Length);
+                    if ( CB432.Checked && (line.IndexOf(">70cm ") > 0) )
+                            fileOut432.Write(msg, 0, msg.Length);
+                }
+                if (filesChanged)
+                {
+                    fileOut1.Close();
+                    fileOut2.Close();
+                }
+                if (CB144.Checked)
+                    fileOut144.Close();
+                if (CB432.Checked)
+                    fileOut432.Close();
+            }
             return result;
         }
 
@@ -273,15 +347,10 @@ namespace WsjtxAdiMerger
         }
         private void BFusion_Click(object sender, EventArgs e)
         {
-            string message = saisieOK();
-            if (message.Length > 0)
-                MessageBox.Show(message);
-            else
-            {
-                int nbRecAdded = FusionADI();
-                if (nbRecAdded >= 0)
-                    MessageBox.Show(STR_MsgCompleted.Replace("$", nbRecAdded.ToString()));
-            }
+            string msg = saisieOK();
+            if (msg.Length == 0)
+                msg = FusionADI();
+            MessageBox.Show(msg, STR_Result);
         }
 
         private void toolStripButtonAbout_Click(object sender, EventArgs e)
