@@ -1,4 +1,4 @@
-# WsjtxAdiMerger by F4LAA V1.1b (2024/02/17 23:13)
+# WsjtxAdiMerger by F4LAA V1.1c (2024/02/19 11:10)
 A Program to merge two WSJT-X instances ADI log files<br/>
 <br/>
 If you use two instances of WSJT-X program running for two different Rigs<br/>
