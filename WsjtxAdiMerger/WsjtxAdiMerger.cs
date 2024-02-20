@@ -20,7 +20,7 @@
  * V1.1c (19/02/2024 20:00)
  *   - More explicit final message
  * 
- * V1.2 (20/02/2024 22:22)
+ * V1.2 (20/02/2024 22:54)
  *   - More explicit final message
  * 
  * ***************************************************************/
@@ -32,7 +32,7 @@ namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger par F4LAA V1.2 (20/02/2024 22:22)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.2 (20/02/2024 22:54)";
         protected ACRegistry reg;
         string STR_FileFilter;
         string STR_NoRecordFound;
@@ -62,6 +62,10 @@ namespace WsjtxAdiMerger
 
         void setLang(int lang)
         {
+            string STR_FileLabelFR = "Selectionner le fichier wsjtx_log.adi";
+            string STR_FileLabelUS = "Select the wsjtx_log.adi file";
+            string STR_FileQRZFR = "Fichier QRZ.com à intégrer";
+            string STR_FileQRZUS = "QRZ.com ADI file to add";
             switch (toolStripComboBoxLang.SelectedIndex)
             {
                 case 0:
@@ -78,14 +82,20 @@ namespace WsjtxAdiMerger
                     STR_MsgFileMerged = "\r\nLes deux fichiers ont été fusionnés et remis en place.";
                     STR_File144Created = "\r\nLe fichier wsjtx_144MHz a été créé.";
                     STR_File432Created = "\r\nLe fichier wsjtx_432MHz a été créé.";
-                    STR_FileLabel = "Selectionner le fichier wsjtx_log.adi";
-                    STR_FileQRZ = "Fichier QRZ.com à intégrer";
+                    STR_FileLabel = STR_FileLabelFR;
+                    STR_FileQRZ = STR_FileQRZFR;
                     STR_MSG1 = "Il faut choisir deux fichiers wsjtx_log.adi dans deux dossiers différents";
                     STR_MSG2 = "Choisissez le fichier wsjtx_log.adi du 2ème Wsjt-x";
                     STR_MSG3 = "Il faut choisir le fichier wsjtx_log.adi du 2ème Wsjt-x";
                     STR_MSG4 = "Choisissez le fichier wsjtx_log.adi du 1er Wsjt-x";
                     STR_MSG5 = "Il faut choisir le fichier wsjtx_log.adi du 1er Wsjt-x";
                     VERSION = VERSION.Replace("by", "par");
+                    if ((labFile1.Text.Length == 0) || (labFile1.Text == STR_FileLabelUS))
+                        labFile1.Text = STR_FileLabel;
+                    if ((labFile2.Text.Length == 0) || (labFile2.Text == STR_FileLabelUS))
+                        labFile2.Text = STR_FileLabel;
+                    if ((labFileQRZ.Text.Length == 0) || (labFileQRZ.Text == STR_FileQRZUS))
+                        labFileQRZ.Text = STR_FileQRZ;
                     break;
 
                 case 1:
@@ -102,14 +112,20 @@ namespace WsjtxAdiMerger
                     STR_MsgFileMerged = "\r\nThe two files have been merged and replaced.";
                     STR_File144Created = "\r\nThe file wsjtx_144MHz has been created.";
                     STR_File432Created = "\r\nThe file wsjtx_432MHz has been created.";
-                    STR_FileLabel = "Select the wsjtx_log.adi file";
-                    STR_FileQRZ = "QRZ.com ADI file to add";
+                    STR_FileLabel = STR_FileLabelUS;
+                    STR_FileQRZ = STR_FileQRZUS;
                     STR_MSG1 = "You must select two wsjtx_log.adi files in two differents directories";
                     STR_MSG2 = "Select the wsjtx_log.adi file for the 2nd Wsjt-x";
                     STR_MSG3 = "You must select the wsjtx_log.adi file of the 2nd Wsjt-x";
                     STR_MSG4 = "Select the wsjtx_log.adi file for the 1st Wsjt-x";
                     STR_MSG5 = "You must select the wsjtx_log.adi file of the 1st Wsjt-x";
                     VERSION = VERSION.Replace("par", "by");
+                    if ((labFile1.Text.Length == 0) || (labFile1.Text == STR_FileLabelFR))
+                        labFile1.Text = STR_FileLabel;
+                    if ((labFile2.Text.Length == 0) || (labFile2.Text == STR_FileLabelFR))
+                        labFile2.Text = STR_FileLabel;
+                    if ((labFileQRZ.Text.Length == 0) || (labFileQRZ.Text == STR_FileQRZFR))
+                        labFileQRZ.Text = STR_FileQRZ;
                     break;
             }
             Text = VERSION;
@@ -140,12 +156,6 @@ namespace WsjtxAdiMerger
             toolStripComboBoxLang.Items.Add("Français");
             toolStripComboBoxLang.Items.Add("English");
             toolStripComboBoxLang.SelectedIndex = lang;
-            if (labFile1.Text.Length == 0)
-            {
-                labFile1.Text = STR_FileLabel;
-                labFile2.Text = STR_FileLabel;
-            }
-            labFileQRZ.Text = STR_FileQRZ;
             PB1.Hide();
         }
 
