@@ -40,6 +40,9 @@
             toolStripLabel1 = new ToolStripLabel();
             toolStripComboBoxLang = new ToolStripComboBox();
             toolStripButtonAbout = new ToolStripButton();
+            BQrzAdi = new Button();
+            labFileQRZ = new Label();
+            PB1 = new ProgressBar();
             toolStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -84,7 +87,7 @@
             // CB144
             // 
             CB144.AutoSize = true;
-            CB144.Location = new Point(33, 111);
+            CB144.Location = new Point(33, 145);
             CB144.Name = "CB144";
             CB144.Size = new Size(164, 19);
             CB144.TabIndex = 4;
@@ -94,7 +97,7 @@
             // CB432
             // 
             CB432.AutoSize = true;
-            CB432.Location = new Point(240, 111);
+            CB432.Location = new Point(240, 145);
             CB432.Name = "CB432";
             CB432.Size = new Size(164, 19);
             CB432.TabIndex = 5;
@@ -104,7 +107,7 @@
             // BFusion
             // 
             BFusion.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            BFusion.Location = new Point(108, 147);
+            BFusion.Location = new Point(108, 170);
             BFusion.Name = "BFusion";
             BFusion.Size = new Size(252, 32);
             BFusion.TabIndex = 6;
@@ -143,11 +146,40 @@
             toolStripButtonAbout.TextImageRelation = TextImageRelation.ImageAboveText;
             toolStripButtonAbout.Click += toolStripButtonAbout_Click;
             // 
+            // BQrzAdi
+            // 
+            BQrzAdi.Location = new Point(27, 106);
+            BQrzAdi.Name = "BQrzAdi";
+            BQrzAdi.Size = new Size(75, 23);
+            BQrzAdi.TabIndex = 12;
+            BQrzAdi.Text = "QRZ ADI";
+            BQrzAdi.UseVisualStyleBackColor = true;
+            BQrzAdi.Click += BQrzAdi_Click;
+            // 
+            // labFileQRZ
+            // 
+            labFileQRZ.AutoSize = true;
+            labFileQRZ.Location = new Point(108, 110);
+            labFileQRZ.Name = "labFileQRZ";
+            labFileQRZ.Size = new Size(148, 15);
+            labFileQRZ.TabIndex = 11;
+            labFileQRZ.Text = "Fichier QRZ.com à intégrer";
+            // 
+            // PB1
+            // 
+            PB1.Location = new Point(28, 208);
+            PB1.Name = "PB1";
+            PB1.Size = new Size(408, 16);
+            PB1.TabIndex = 13;
+            // 
             // WsjtxAdiMerger
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(459, 200);
+            ClientSize = new Size(459, 230);
+            Controls.Add(PB1);
+            Controls.Add(BQrzAdi);
+            Controls.Add(labFileQRZ);
             Controls.Add(toolStrip1);
             Controls.Add(BFusion);
             Controls.Add(CB432);
@@ -178,5 +210,8 @@
         private ToolStripLabel toolStripLabel1;
         private ToolStripComboBox toolStripComboBoxLang;
         private ToolStripButton toolStripButtonAbout;
+        private Button BQrzAdi;
+        private Label labFileQRZ;
+        private ProgressBar PB1;
     }
 }

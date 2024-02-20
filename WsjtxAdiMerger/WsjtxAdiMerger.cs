@@ -20,15 +20,19 @@
  * V1.1c (19/02/2024 20:00)
  *   - More explicit final message
  * 
+ * V1.2 (20/02/2024 18:48)
+ *   - More explicit final message
+ * 
  * ***************************************************************/
 using System.Collections;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger par F4LAA V1.1c (19/02/2024 20:00)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.2 (20/02/2024 18:48)";
         protected ACRegistry reg;
         string STR_FileFilter;
         string STR_NoRecordFound;
@@ -38,11 +42,23 @@ namespace WsjtxAdiMerger
         string STR_MsgFileMerged;
         string STR_File144Created;
         string STR_File432Created;
+        string STR_FileLabel;
+        string STR_FileQRZ;
         string STR_MSG1;
         string STR_MSG2;
         string STR_MSG3;
         string STR_MSG4;
         string STR_MSG5;
+        private void toolStripButtonAbout_Click(object sender, EventArgs e)
+        {
+            About dlg = new About(VERSION, toolStripComboBoxLang.SelectedIndex)
+            {
+                StartPosition = FormStartPosition.Manual,
+                Left = this.Left + 20,
+                Top = this.Top + 30
+            };
+            dlg.ShowDialog();
+        }
 
         void setLang(int lang)
         {
@@ -62,6 +78,8 @@ namespace WsjtxAdiMerger
                     STR_MsgFileMerged = "\r\nLes deux fichiers ont été fusionnés et remis en place.";
                     STR_File144Created = "\r\nLe fichier wsjtx_144MHz a été créé.";
                     STR_File432Created = "\r\nLe fichier wsjtx_432MHz a été créé.";
+                    STR_FileLabel = "Selectionner le fichier wsjtx_log.adi";
+                    STR_FileQRZ = "Fichier QRZ.com à intégrer";
                     STR_MSG1 = "Il faut choisir deux fichiers wsjtx_log.adi dans deux dossiers différents";
                     STR_MSG2 = "Choisissez le fichier wsjtx_log.adi du 2ème Wsjt-x";
                     STR_MSG3 = "Il faut choisir le fichier wsjtx_log.adi du 2ème Wsjt-x";
@@ -84,6 +102,8 @@ namespace WsjtxAdiMerger
                     STR_MsgFileMerged = "\r\nThe two files have been merged and replaced.";
                     STR_File144Created = "\r\nThe file wsjtx_144MHz has been created.";
                     STR_File432Created = "\r\nThe file wsjtx_432MHz has been created.";
+                    STR_FileLabel = "Select the wsjtx_log.adi file";
+                    STR_FileQRZ = "QRZ.com ADI file to add";
                     STR_MSG1 = "You must select two wsjtx_log.adi files in two differents directories";
                     STR_MSG2 = "Select the wsjtx_log.adi file for the 2nd Wsjt-x";
                     STR_MSG3 = "You must select the wsjtx_log.adi file of the 2nd Wsjt-x";
@@ -102,7 +122,6 @@ namespace WsjtxAdiMerger
         {
             InitializeComponent();
             reg = new ACRegistry(@"SOFTWARE\F4LAA\WsjtxAdiMerger", true);
-
             string sReg = reg.GetKey("Top");
             int lang = 0; // Default to Français
             if ((sReg != null) && (sReg != ""))
@@ -121,13 +140,20 @@ namespace WsjtxAdiMerger
             toolStripComboBoxLang.Items.Add("Français");
             toolStripComboBoxLang.Items.Add("English");
             toolStripComboBoxLang.SelectedIndex = lang;
+            if (labFile1.Text.Length == 0)
+            {
+                labFile1.Text = STR_FileLabel;
+                labFile2.Text = STR_FileLabel;
+            }
+            labFileQRZ.Text = STR_FileQRZ;
+            PB1.Hide();
         }
 
         private void BWsjtx1_Click(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
             fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"..\local";
-            fileDialog.Filter = STR_FileFilter; 
+            fileDialog.Filter = STR_FileFilter;
             if (fileDialog.ShowDialog() == DialogResult.OK)
                 labFile1.Text = fileDialog.FileName;
         }
@@ -140,37 +166,98 @@ namespace WsjtxAdiMerger
             if (fileDialog.ShowDialog() == DialogResult.OK)
                 labFile2.Text = fileDialog.FileName;
         }
+        private void BQrzAdi_Click(object sender, EventArgs e)
+        {
+            labFileQRZ.Text = STR_FileQRZ;
+            var fileDialog = new OpenFileDialog();
+            fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"..\local";
+            fileDialog.Filter = STR_FileFilter;
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+                labFileQRZ.Text = fileDialog.FileName;
+        }
 
-        private int _loadFile(string filename, SortedList dict)
+        private int _loadFile(string filename, int numfile, SortedList dict, bool wsjtx, bool count, int max)
         {
             int result = 0;
+            string sLine = "";
+            if (!count)
+            {
+                PB1.Minimum = 0;
+                PB1.Maximum = max;
+                PB1.Value = 0;
+                PB1.SetState(numfile); // Weird color change !!!
+                PB1.Show();
+            }
+            int cptPB = 0;
             foreach (string line in File.ReadLines(filename))
             {
-                string toFind = "<gridsquare:";
-                int pos = line.IndexOf(toFind);
-                if (pos > 0)
+                if (count)
+                    result++;
+                else
                 {
-                    int pos2 = line.LastIndexOf(">", pos);
-                    pos2++; // skip >
-                    string callSign = line.Substring(pos2, pos - pos2);
+                    // Animate ProgressBar
+                    cptPB++;
+                    if (cptPB % 100  == 0) 
+                        PB1.Value = cptPB;
 
-                    toFind = "<qso_date:8>";
-                    pos = line.IndexOf(toFind);
-                    string key = line.Substring(pos + toFind.Length, 8);
+                    sLine += line;
 
-                    toFind = "<time_on:6>";
-                    pos = line.IndexOf(toFind);
-                    key += "|" + line.Substring(pos + toFind.Length, 6);
+                    if (sLine.IndexOf("<eoh>") >= 0)
+                        sLine = "";
 
-                    key += "|" + callSign;
-
-                    if (!dict.ContainsKey(key)) // Ignore duplicate key (coz 2nd file may already contains lines from 1st file)
+                    if (sLine.IndexOf("<eor>") >= 0)
                     {
-                        result++;
-                        dict.Add(key, line);
+                        string toFind = "<call:";
+                        int pos = sLine.IndexOf(toFind);
+                        if (pos >= 0)
+                        {
+                            pos = sLine.IndexOf(">", pos);
+                            pos++; // skip >
+                            int pos2 = sLine.IndexOf("<", pos);
+                            string callSign = sLine.Substring(pos, pos2 - pos);
+
+                            toFind = "<qso_date:";
+                            pos = sLine.IndexOf(toFind);
+                            pos = sLine.IndexOf(">", pos);
+                            pos++; // skip >
+                            pos2 = sLine.IndexOf("<", pos);
+                            string key = sLine.Substring(pos, pos2 - pos);
+
+                            toFind = "<time_on:";
+                            pos = sLine.IndexOf(toFind);
+                            pos = sLine.IndexOf(">", pos);
+                            pos++; // skip >
+                            pos2 = sLine.IndexOf("<", pos);
+                            string time = sLine.Substring(pos, pos2 - pos);
+                            if (time.Length == 4)
+                                time += "00"; // QRZ.com do not contains seconds
+                            key += "|" + time;
+                            key += "|" + callSign;
+
+                            bool digital = wsjtx;
+                            if (!digital)
+                            {
+                                toFind = "<mode:";
+                                pos = sLine.IndexOf(toFind);
+                                pos = sLine.IndexOf(">", pos);
+                                pos++; // skip >
+                                pos2 = sLine.IndexOf("<", pos);
+                                string mode = sLine.Substring(pos, pos2 - pos);
+                                digital = ((mode.IndexOf("FT8") >= 0) || (mode.IndexOf("FT4") >= 0) || (mode.IndexOf("MFSK") >= 0));
+                            }
+
+                            if (digital)
+                                if (!dict.ContainsKey(key)) // Ignore duplicate key (coz 2nd file may already contains lines from 1st file)
+                                {
+                                    result++;
+                                    dict.Add(key, sLine);
+                                }
+                        }
+                        sLine = "";
                     }
                 }
             }
+            PB1.Hide();
             return result;
         }
 
@@ -183,26 +270,43 @@ namespace WsjtxAdiMerger
             // Chargement des fichiers en mémoire
             SortedList dict = new SortedList();
 
-            // Stream d'ecriture dans le fichier de trace
-            int nbRecFile1 = _loadFile(labFile1.Text, dict);
+            int nbLinesFile1 = _loadFile(labFile1.Text, 1, dict, true, true, 0);
+            int nbRecFile1 = _loadFile(labFile1.Text, 1, dict, true, false, nbLinesFile1);
             if (nbRecFile1 == 0)
                 return STR_NoRecordFound;
 
-            // Recopie Header file
-            string[] sHeader = new string[6];
-            int cpt = 0;
+            // Memorize Header file
+            string[] sHeader = new string[10];
+            int headerLen = 0;
             foreach (string line in File.ReadLines(labFile1.Text))
             {
-                sHeader[cpt++] = line;
-                if (cpt == 6)
-                    break; // End of Header file
+                sHeader[headerLen++] = line;
+                if (line.IndexOf("<eoh>") >= 0)
+                    break; // End of Header 
+                if (headerLen == 10)
+                    break;
             }
-            if (cpt != 6)
+            if (headerLen == 10)
                 return STR_NoHeaderFound;
 
             // Count added record for each files
-            int nbRec1 = _loadFile(labFile1.Text, dict);
-            int nbRecAdded1 = _loadFile(labFile2.Text, dict);
+            int nbLinesFile2 = _loadFile(labFile2.Text, 2, dict, true, true, 0);
+            int nbRecAdded1 = _loadFile(labFile2.Text, 2, dict, true, false, nbLinesFile2);
+
+            dict = new SortedList(); // Reset dict
+            _loadFile(labFile2.Text, 2, dict, true, false, nbLinesFile2);
+            int nbRecAdded2 = _loadFile(labFile1.Text, 1, dict, true, false, nbLinesFile1);
+
+            if (labFileQRZ.Text != STR_FileQRZ)
+            {
+                // Fichier QRZ.com a ajouter
+                int nbLineQRZ = _loadFile(labFileQRZ.Text, 3, dict, false, true, 0);
+                int nbRecQRZ = _loadFile(labFileQRZ.Text, 3, dict, false, false, nbLineQRZ);
+                nbRecAdded1 += nbRecQRZ;
+                nbRecAdded2 += nbRecQRZ;
+                labFileQRZ.Text = STR_FileQRZ; // used
+            }
+
             if (nbRecAdded1 == 0)
             {
                 result = result.Replace("$1 enregistrement", "Aucun enregistrement");
@@ -215,9 +319,6 @@ namespace WsjtxAdiMerger
             }
             result = result.Replace("$1", nbRecAdded1.ToString());
 
-            dict = new SortedList(); // Reset dict
-            int nbRec2 = _loadFile(labFile2.Text, dict);
-            int nbRecAdded2 = _loadFile(labFile1.Text, dict);
             if (nbRecAdded2 == 0)
             {
                 result = result.Replace("$2 enregistrement", "Aucun enregistrement");
@@ -242,7 +343,7 @@ namespace WsjtxAdiMerger
             {
                 fileOut144 = new FileStream(labFile1.Text.Replace("_log", "_144MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
                 // Header of added files
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < headerLen; i++)
                 {
                     byte[] msg = new UTF8Encoding(true).GetBytes(sHeader[i] + "\r\n");
                     fileOut144.Write(msg, 0, msg.Length);
@@ -254,7 +355,7 @@ namespace WsjtxAdiMerger
             {
                 fileOut432 = new FileStream(labFile1.Text.Replace("_log", "_432MHz"), FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
                 // Header of added files
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < headerLen; i++)
                 {
                     byte[] msg = new UTF8Encoding(true).GetBytes(sHeader[i] + "\r\n");
                     fileOut432.Write(msg, 0, msg.Length);
@@ -289,7 +390,7 @@ namespace WsjtxAdiMerger
                 fileOut1 = new FileStream(labFile1.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
                 fileOut2 = new FileStream(labFile2.Text, FileMode.Create, FileAccess.Write, FileShare.Write, 4096, false);
                 // Header of files
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < headerLen; i++)
                 {
                     byte[] msg = new UTF8Encoding(true).GetBytes(sHeader[i] + "\r\n");
                     fileOut1.Write(msg, 0, msg.Length);
@@ -299,9 +400,20 @@ namespace WsjtxAdiMerger
 
             if (filesChanged || CB144.Checked || CB432.Checked)
             {
+                PB1.Minimum = 0;
+                PB1.Maximum = dict.Count;
+                PB1.Value = 0;
+                PB1.ForeColor = Color.Yellow;
+                PB1.SetState(1); // = Color.Green;
+                PB1.Show();
+                int cptPB = 0;
                 IDictionaryEnumerator dicEnum = dict.GetEnumerator();
                 while (dicEnum.MoveNext())
                 {
+                    // Animate ProgressBar
+                    cptPB++;
+                    PB1.Value = cptPB;
+
                     string line = dicEnum.Value.ToString();
                     byte[] msg = new UTF8Encoding(true).GetBytes(line + "\r\n");
                     if (filesChanged)
@@ -309,10 +421,10 @@ namespace WsjtxAdiMerger
                         fileOut1.Write(msg, 0, msg.Length);
                         fileOut2.Write(msg, 0, msg.Length);
                     }
-                    if ( CB144.Checked && (line.IndexOf(">2m ") > 0) )
-                            fileOut144.Write(msg, 0, msg.Length);
-                    if ( CB432.Checked && (line.IndexOf(">70cm ") > 0) )
-                            fileOut432.Write(msg, 0, msg.Length);
+                    if (CB144.Checked && (line.IndexOf(">2m ") > 0))
+                        fileOut144.Write(msg, 0, msg.Length);
+                    if (CB432.Checked && (line.IndexOf(">70cm ") > 0))
+                        fileOut432.Write(msg, 0, msg.Length);
                 }
                 if (filesChanged)
                 {
@@ -323,6 +435,7 @@ namespace WsjtxAdiMerger
                     fileOut144.Close();
                 if (CB432.Checked)
                     fileOut432.Close();
+                PB1.Hide();
             }
             return result;
         }
@@ -356,16 +469,6 @@ namespace WsjtxAdiMerger
             MessageBox.Show(msg, STR_Result);
         }
 
-        private void toolStripButtonAbout_Click(object sender, EventArgs e)
-        {
-            About dlg = new About(VERSION, toolStripComboBoxLang.SelectedIndex)
-            {
-                StartPosition = FormStartPosition.Manual,
-                Left = this.Left + 20,
-                Top = this.Top + 30
-            };
-            dlg.ShowDialog();
-        }
         private void WsjtxAdiMerger_FormClosing(object sender, FormClosingEventArgs e)
         {
             reg.SetKey("Top", "" + Top);
@@ -375,6 +478,16 @@ namespace WsjtxAdiMerger
             reg.SetKey("CB144", CB144.Checked ? "1" : "0");
             reg.SetKey("CB432", CB432.Checked ? "1" : "0");
             reg.SetKey("Lang", toolStripComboBoxLang.SelectedIndex.ToString());
+        }
+    }
+
+    public static class ModifyProgressBarColor
+    {
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr w, IntPtr l);
+        public static void SetState(this ProgressBar pBar, int state)
+        {
+            SendMessage(pBar.Handle, 1040, (IntPtr)state, IntPtr.Zero);
         }
     }
 }
