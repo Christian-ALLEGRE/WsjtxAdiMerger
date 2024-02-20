@@ -60,10 +60,11 @@ V1.1c (2024/02/19 20:00): <br/>
 <ul>
   <li>Add a more explicit final message that tells how many records where added in each files.</li>
   <li>Do not backup and rewrite files if no record were added.</li>
+</ul>
 <ul>
 V1.2 (2024/02/20 18:48): <br/>
 <ul>
-  <li>Add the ability to add a QRZ.com exported ADI file to WSJT-X ADI files.</li>
+  <li>New feature: You can now add a <b>QRZ.com exported ADI file</b> to your wsjtx_log.adi files.</li>
 <ul>
 <hr/>
 
