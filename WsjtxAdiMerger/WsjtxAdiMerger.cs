@@ -20,7 +20,7 @@
  * V1.1c (19/02/2024 20:00)
  *   - More explicit final message
  * 
- * V1.2 (20/02/2024 18:48)
+ * V1.2 (20/02/2024 22:22)
  *   - More explicit final message
  * 
  * ***************************************************************/
@@ -32,7 +32,7 @@ namespace WsjtxAdiMerger
 {
     public partial class WsjtxAdiMerger : Form
     {
-        private string VERSION = "WsjtxAdiMerger par F4LAA V1.2 (20/02/2024 18:48)";
+        private string VERSION = "WsjtxAdiMerger par F4LAA V1.2 (20/02/2024 22:22)";
         protected ACRegistry reg;
         string STR_FileFilter;
         string STR_NoRecordFound;
@@ -214,44 +214,69 @@ namespace WsjtxAdiMerger
                             pos = sLine.IndexOf(">", pos);
                             pos++; // skip >
                             int pos2 = sLine.IndexOf("<", pos);
-                            string callSign = sLine.Substring(pos, pos2 - pos);
+                            string callSign = sLine.Substring(pos, pos2 - pos).Trim(); // Remove trailing space
 
                             toFind = "<qso_date:";
                             pos = sLine.IndexOf(toFind);
                             pos = sLine.IndexOf(">", pos);
                             pos++; // skip >
                             pos2 = sLine.IndexOf("<", pos);
-                            string key = sLine.Substring(pos, pos2 - pos);
+                            string key = sLine.Substring(pos, pos2 - pos).Trim(); // Remove trailing space
 
                             toFind = "<time_on:";
                             pos = sLine.IndexOf(toFind);
                             pos = sLine.IndexOf(">", pos);
                             pos++; // skip >
                             pos2 = sLine.IndexOf("<", pos);
-                            string time = sLine.Substring(pos, pos2 - pos);
-                            if (time.Length == 4)
-                                time += "00"; // QRZ.com do not contains seconds
+                            string time = sLine.Substring(pos, pos2 - pos).Trim(); // Remove trailing space
                             key += "|" + time;
-                            key += "|" + callSign;
 
-                            bool digital = wsjtx;
-                            if (!digital)
+                            bool digitalQSO = wsjtx;
+                            if (!digitalQSO)
                             {
+                                // QRZ.com file
                                 toFind = "<mode:";
                                 pos = sLine.IndexOf(toFind);
                                 pos = sLine.IndexOf(">", pos);
                                 pos++; // skip >
                                 pos2 = sLine.IndexOf("<", pos);
                                 string mode = sLine.Substring(pos, pos2 - pos);
-                                digital = ((mode.IndexOf("FT8") >= 0) || (mode.IndexOf("FT4") >= 0) || (mode.IndexOf("MFSK") >= 0));
+                                digitalQSO = ((mode.IndexOf("FT8") >= 0) || (mode.IndexOf("FT4") >= 0) || (mode.IndexOf("MFSK") >= 0));
                             }
-
-                            if (digital)
-                                if (!dict.ContainsKey(key)) // Ignore duplicate key (coz 2nd file may already contains lines from 1st file)
+                            if (callSign.Contains("LY2CX"))
+                            {
+                                int kk = 0;
+                            }
+                            if (digitalQSO)
+                            {
+                                if (wsjtx)
                                 {
-                                    result++;
-                                    dict.Add(key, sLine);
+                                    key += "|" + callSign;
+                                    if (!dict.ContainsKey(key)) // Ignore duplicate key (coz 2nd file may already contains lines from 1st file)
+                                    {
+                                        result++;
+                                        dict.Add(key, sLine);
+                                    }
                                 }
+                                else
+                                {
+                                    // QRZ.com do not contains seconds, so we must check all time frames
+                                    string key1 = key + "00|" + callSign;
+                                    string key2 = key + "15|" + callSign;
+                                    string key3 = key + "30|" + callSign;
+                                    string key4 = key + "45|" + callSign;
+                                    key += "|" + callSign;
+                                    if (!dict.ContainsKey(key) 
+                                        && !dict.ContainsKey(key1) 
+                                        && !dict.ContainsKey(key2) 
+                                        && !dict.ContainsKey(key3) 
+                                        && !dict.ContainsKey(key4))
+                                    {
+                                        result++;
+                                        dict.Add(key, sLine);
+                                    }
+                                }
+                            }
                         }
                         sLine = "";
                     }

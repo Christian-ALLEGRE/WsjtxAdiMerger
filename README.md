@@ -1,4 +1,4 @@
-# WsjtxAdiMerger by F4LAA V1.2 (2024/02/20 18:48)
+# WsjtxAdiMerger by F4LAA V1.2 (2024/02/20 22:22)
 A Program to merge two WSJT-X instances ADI log files<br/>
 <br/>
 If you use two instances of WSJT-X program running for two different Rigs<br/>
@@ -64,7 +64,7 @@ V1.1c (2024/02/19 20:00): <br/>
   <li>Add a more explicit final message that tells how many records where added in each files.</li>
   <li>Do not backup and rewrite files if no record were added.</li>
 </ul>
-V1.2 (2024/02/20 18:48): <br/>
+V1.2 (2024/02/20 22:22): <br/>
 <ul>
   <li>New feature: You can now add a <b>QRZ.com exported ADI file</b> to your wsjtx_log.adi files.</li>
 </ul>
