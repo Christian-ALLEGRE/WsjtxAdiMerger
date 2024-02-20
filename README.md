@@ -25,10 +25,10 @@ Those dedicated files are generated in the directory of the first WSJT-X instanc
 <br/>
 The program memorizes in the Windows Registries the parameters for Instance 1 and 2 of WSJT-X, so if you restart the program later, you only have to click on the "Merge then Replace .ADI files" button to get the files synchronized.<br/>
 <br/>
-This program is write using C# language. It is compiled using Visual Studio 2022 for .Net6 environment.<br/>
-So, you may need to install the ".Net6 desktop runtime" to be able to run it on a Windows10 computer.<br/>
+This program is written in C# language. It is compiled with Visual Studio 2022 for .Net6 environment.<br/>
+So, you may need to install the ".Net6 desktop runtime" to be able to run it on a computer running Windows10 or even Windows11.<br/>
 <br/>
-You can find the .exe, .dll, and requested .json files in the WsjtxAdiMerger\bin\Debug\net6.0-windows directory.<br/>
+You can find the .exe, .dll, and needed .json files in the <b>WsjtxAdiMerger\bin\Debug\net6.0-windows</b> directory.<br/>
 <br/>
 Enjoy it.<br/>
 <br/>
