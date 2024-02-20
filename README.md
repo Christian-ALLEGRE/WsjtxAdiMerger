@@ -8,8 +8,11 @@ if you want an instance to know about the QSOs made with the other instance, you
 <br/>
 <b>This program do it for you automatically.</b><br/>
 <br/>
-You select the two directories where wsjtx_log.adi files resides, and click on "Merge then Replace .ADI files" button.<br/>
+You select the two wsjtx_log.adi files from each WSJT-X directory (typically "%APPDATA%\..\local\WSJT-X - RigName"),<br/>
+and click on "Merge then Replace .ADI files" button.<br/>
 The program read both files in memory, merge them, then rewrite them in each directory so that the two files becomes the same.<br/>
+<br/>
+You can optionnaly select a third file, expected to be a <b>"QRZ.com exported ADI file"</b>, and the program will merge all FT8, FT4, and MFSK QSO's found in this file into your wsjtx_log.adi files.<br/>
 <br/>
 Now, each WSJT-X instance has the same QSO list as the other, so you can benefit again from the color code provided by WSJT-X to show already done locator vs not yet done locator.<br/>
 <br/>
@@ -66,5 +69,3 @@ V1.2 (2024/02/20 18:48): <br/>
   <li>New feature: You can now add a <b>QRZ.com exported ADI file</b> to your wsjtx_log.adi files.</li>
 </ul>
 <hr/>
-
-
